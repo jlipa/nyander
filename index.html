@@ -1,13 +1,276 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My GitHub Pages Site</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Cat Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Didact Gothic" rel="stylesheet">
+  <link rel="icon" href="https://mynyannyannyanexp.s3.ap-southeast-2.amazonaws.com/uploads/favicon.ico" type="image/x-icon">
+  <style>
+    body {
+      font-family: Calibri, sans-serif;
+      background-color: #191717;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      color-scheme: dark;
+    }
+
+    h1 {
+        color: #cc8d15;
+        font-size: -webkit-xxx-large;
+        z-index: 2;
+    }
+
+    header {
+        position: relative;
+        text-align: center;
+        padding: 2em;
+        overflow: hidden;
+    }
+
+    img {
+        width: 50%; 
+        height: auto; 
+        max-height: 400px; 
+        position: relative;
+        top: 0;
+        left: 0;
+        z-index: -1; 
+        opacity: 0.5;
+    }
+
+    #chat-container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #141414;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .cat-response {
+      padding-top: 20px;
+      padding-bottom: 20px;
+      text-align: center;
+    }
+
+    .human-response {
+      padding-top: 15px;
+      padding-bottom: 5px;
+      text-align: center;
+      color: #b8b7b2;
+      font-family: 'Didact Gothic', sans-serif, cursive;
+    }
+
+    #chat-output {
+      text-align: left;
+      padding-top: 20px;
+    }
+
+    /* Fonts style */
+    .tangerine-regular {
+        font-family: "Tangerine", cursive;
+        font-weight: 400;
+        font-style: normal;
+    }
+
+    .tangerine-bold {
+        font-family: "Tangerine", cursive;
+        font-weight: 700;
+        font-style: normal;
+    }
+
+    /* Cat response animation */
+    .char{
+        font-size: 40px;
+        height: 40px;
+        animation: an 1s ease-out 1 both;
+        display: inline-block;
+        color: #7a8cab;
+    }
+
+    @keyframes an{
+        from{
+            opacity: 0;
+            transform: perspective(500px) translate3d(-35px, -40px, -150px) rotate3d(1, -1, 0, 35deg);
+        }
+        to{
+            opacity: 1;
+            transform: perspective(500px) translate3d(0, 0, 0);
+        }
+    }
+
+    /* Input field */
+    input {
+        background: 0;
+        border: 0;
+        outline: none;
+        width: 80vw;
+        max-width: 400px;
+        font-size: 1.5em;
+        transition: padding 0.3s 0.2s ease;
+        display: block;
+        margin: 0 auto; /* Center the input horizontally */
+        line-height: 2em; /* Adjust the line height to vertically center the text */
+        font-family: 'Didact Gothic', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif, cursive;
+        font-style: italic;
+        opacity: .5;
+
+        &:focus {
+            padding-bottom: 5px;
+        }
+
+        /* sibling magic ;o */
+        &:focus + .field .line:after {
+            transform: scaleX(1);
+            text-align: center;
+        }
+
+        &::placeholder {
+            color: #95a5a6; 
+            font-size: 1em;
+            opacity: 0.8;
+            text-align: center;
+        }
+    }
+
+    .field {
+        position: relative;
+    }
+
+    .line {
+        width: 100%;
+        height: 3px;
+        position: absolute;
+        bottom: -8px;
+        background: #bdc3c7;
+
+        &:after {
+            content: " ";
+            position: absolute;
+            float: right;
+            width: 100%;
+            height: 3px;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+            background: #1abc9c;
+        }
+    }
+  </style>
 </head>
 <body>
-    <h1>Welcome to My GitHub Pages Site!</h1>
-    <p>This is a test page nyan~</p>
+    <header>
+        <img src="https://mynyannyannyanexp.s3.ap-southeast-2.amazonaws.com/uploads/blackcat-watercolor-transparent.png" alt="Black Cat">
+        <h1 class="tangerine-bold">Sage</h1>
+    </header>
+
+  <div id="chat-container">    
+    <div class="field">
+        <input type="text" id="user-input" placeholder="What is it you seek?">
+        <div class="line"></div>
+    </div>
+
+    <div id="chat-output"></div>
+  </div>
+
+  <script>  
+    const chatOutput = document.getElementById('chat-output');
+    const userInput = document.getElementById('user-input');
+    let catResIndex = 0;
+
+    userInput.addEventListener('keyup', function(event) {
+      if (event.key === 'Enter') {
+        const userMessage = userInput.value;
+        displayUserMessage(userMessage);
+        getCatChatResponse(userMessage);
+        userInput.value = '';
+      }
+    });
+
+    function displayUserMessage(message) {
+        newDiv = document.createElement('div');
+        newDiv.className = 'human-response';
+        newDiv.innerHTML = `${message}`;
+        chatOutput.appendChild(newDiv);
+
+        chatOutput.scrollTop = chatOutput.scrollHeight;
+
+        newDiv.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' });
+    }
+
+    function displayCatMessage(message) {
+        catResIndex++;
+        let newDivId = 'cat-res' + catResIndex;
+        newDiv = document.createElement('div');
+        newDiv.id = newDivId;
+        newDiv.className = 'cat-response tangerine-regular';
+        newDiv.innerHTML = `${message}`;
+        chatOutput.appendChild(newDiv);
+
+        addDelayEffect(newDivId);
+
+        newDiv.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' });
+    }
+
+    async function getCatChatResponse(userMessage) {
+        const OPENAI_API_KEY = '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';
+
+        const requestData = {
+            model: "gpt-3.5-turbo",
+            messages: [
+                {
+                    role: "user",
+                    content: `
+                        We ask the human, what do you seek? 
+                        The human responds: ${userMessage}.
+                        Give me a response like an all knowing cat would.
+                    `
+                }
+            ]
+        };
+
+        try {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${OPENAI_API_KEY}`
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            const data = await response.json();
+            const catResponse = data.choices[0].message.content;
+            displayCatMessage(catResponse);
+        } catch (error) {
+            console.error('Error:', error);
+            displayCatMessage("Zzz... The cat is sleeping and can't answer right now.");
+        }
+    }
+
+    function addDelayEffect(elementID) {
+        var element = document.getElementById(elementID);
+        var originalText = element.innerText;
+        var newDom = '';
+        var animationDelay = 6;
+
+        const words = element.innerText.split(' ');
+        for (let i = 0; i < words.length; i++) {
+            newDom += '<span class="char">' + (words[i]) + '</span>&nbsp;';
+        }
+
+        element.innerHTML = newDom;
+        var length = element.children.length;
+
+        for (let i = 0; i < length; i++) {
+            element.children[i].style['animation-delay'] = animationDelay * i + 'ms';
+        }
+    }
+  </script>
 </body>
 </html>
-
